@@ -1,0 +1,19 @@
+[package]
+name = "axplat-custom"
+version = "0.1.0"
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+repository.workspace = true
+
+[features]
+fp_simd = []
+irq = []
+rtc = []
+smp = []
+
+[dependencies]
+axconfig-gen-macros = "0.1"
+axhal_plat = { version = "0.1.0", path = "../../axhal_plat" }

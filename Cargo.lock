@@ -207,6 +207,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "axplat-custom"
+version = "0.1.0"
+dependencies = [
+ "axconfig-gen-macros",
+ "axhal_plat",
+]
+
+[[package]]
 name = "axplat-x86-pc"
 version = "0.1.0"
 dependencies = [

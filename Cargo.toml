@@ -10,6 +10,7 @@ members = [
     "platforms/axplat-aarch64-common",
     "platforms/axplat-aarch64-qemu-virt",
     "platforms/axplat-aarch64-raspi",
+    "platforms/axplat-custom",
 ]
 
 [workspace.package]
