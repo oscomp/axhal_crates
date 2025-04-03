@@ -12,9 +12,9 @@ impl PowerIf for PowerImpl {
     ///
     /// Where `cpu_id` is the logical CPU ID (0, 1, ..., N-1, N is the number of
     /// CPU cores on the platform).
-    fn cpu_boot(cpu_id: usize, stack_top_paddr: usize) {
+    fn cpu_boot(_cpu_id: usize, _stack_top_paddr: usize) {
         #[cfg(feature = "smp")]
-        crate::mp::start_secondary_cpu(cpu_id, pa!(stack_top_paddr));
+        crate::mp::start_secondary_cpu(_cpu_id, pa!(_stack_top_paddr));
     }
 
     /// Shutdown the whole system (in QEMU).

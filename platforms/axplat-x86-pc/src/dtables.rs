@@ -26,10 +26,10 @@ fn init_percpu() {
 
 /// Initializes IDT, GDT on the primary CPU.
 pub fn init_primary() {
-    axhal_plat::console_println!("\nInitialize IDT & GDT...");
     percpu::init();
     IDT.init_once(IdtStruct::new());
     init_percpu();
+    axhal_plat::console_println!("\nFinish initialize IDT & GDT.");
 }
 
 /// Initializes IDT, GDT on secondary CPUs.

@@ -2,9 +2,10 @@
 
 use axhal_plat::console::ConsoleIf;
 use kspin::SpinNoIrq;
+use lazyinit::LazyInit;
 use uart_16550::SerialPort;
 
-static COM1: SpinNoIrq<SerialPort> = unsafe { SpinNoIrq::new(SerialPort::new(0x3f8)) };
+static COM1: LazyInit<SpinNoIrq<SerialPort>> = LazyInit::new();
 
 /// Writes a byte to the console.
 pub fn putchar(c: u8) {
@@ -16,8 +17,14 @@ pub fn getchar() -> Option<u8> {
     COM1.lock().try_receive().ok()
 }
 
+/// Initialize COM1 serial port
+///
+/// When we invoke this function, the irq is not enabled yet.
+/// So we must finish the initialization of COM1 without locking the `SpinNoIrq`.
 pub fn init() {
-    COM1.lock().init();
+    let mut com1 = unsafe { SerialPort::new(0x3f8) };
+    com1.init();
+    COM1.init_once(SpinNoIrq::new(com1));
 }
 
 struct ConsoleIfImpl;

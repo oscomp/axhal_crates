@@ -34,7 +34,7 @@ fn current_cpu_id() -> usize {
 unsafe extern "C" fn rust_entry(magic: usize, mbi: usize) {
     // TODO: handle multiboot info
     if magic == self::boot::MULTIBOOT_BOOTLOADER_MAGIC {
-        axhal_plat::mem::clear_bss();
+        unsafe { axhal_plat::mem::clear_bss() };
         self::console::init();
         self::dtables::init_primary();
         self::time::init_early();
@@ -43,9 +43,9 @@ unsafe extern "C" fn rust_entry(magic: usize, mbi: usize) {
     }
 }
 
-unsafe extern "C" fn rust_entry_secondary(magic: usize) {
+unsafe extern "C" fn rust_entry_secondary(_magic: usize) {
     #[cfg(feature = "smp")]
-    if magic == self::boot::MULTIBOOT_BOOTLOADER_MAGIC {
+    if _magic == self::boot::MULTIBOOT_BOOTLOADER_MAGIC {
         self::dtables::init_secondary();
         axhal_plat::call_secondary_main(current_cpu_id());
     }

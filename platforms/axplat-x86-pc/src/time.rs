@@ -103,14 +103,14 @@ impl TimeIf for TimeIfImpl {
     ///
     /// A timer interrupt will be triggered at the specified monotonic time
     /// deadline (in nanoseconds).
-    fn set_oneshot_timer(deadline_ns: u64) {
+    fn set_oneshot_timer(_deadline_ns: u64) {
         #[cfg(feature = "irq")]
         {
             let lapic = super::apic::local_apic();
             let now_ns = Self::ticks_to_nanos(Self::current_ticks());
             unsafe {
-                if now_ns < deadline_ns {
-                    let apic_ticks = NANOS_TO_LAPIC_TICKS_RATIO.mul_trunc(deadline_ns - now_ns);
+                if now_ns < _deadline_ns {
+                    let apic_ticks = NANOS_TO_LAPIC_TICKS_RATIO.mul_trunc(_deadline_ns - now_ns);
                     assert!(apic_ticks <= u32::MAX as u64);
                     lapic.set_timer_initial(apic_ticks.max(1) as u32);
                 } else {
