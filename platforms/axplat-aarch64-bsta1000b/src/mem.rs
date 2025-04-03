@@ -2,10 +2,11 @@ use axhal_plat::mem::{MemIf, RawRange};
 use memory_addr::{PhysAddr, VirtAddr};
 
 use crate::config::devices::MMIO_RANGES;
-use crate::config::plat::{KERNEL_BASE_PADDR, PHYS_MEMORY_SIZE, PHYS_VIRT_OFFSET};
+use crate::config::plat::{PHYS_MEMORY_BASE, PHYS_MEMORY_SIZE, PHYS_VIRT_OFFSET};
 
 struct MemIfImpl;
 
+#[allow(dead_code)]
 pub const fn phys_to_virt(paddr: PhysAddr) -> VirtAddr {
     va!(paddr.as_usize() + PHYS_VIRT_OFFSET)
 }
@@ -22,7 +23,7 @@ impl MemIf for MemIfImpl {
     /// All memory ranges except reserved ranges (including the kernel loaded
     /// range) are free for allocation.
     fn phys_ram_ranges() -> &'static [RawRange] {
-        &[(KERNEL_BASE_PADDR, PHYS_MEMORY_SIZE)]
+        &[(PHYS_MEMORY_BASE, PHYS_MEMORY_SIZE)]
     }
 
     /// Returns all reserved physical memory ranges on the platform.
@@ -33,7 +34,7 @@ impl MemIf for MemIfImpl {
     /// Note that the ranges returned should not include the range where the
     /// kernel is loaded.
     fn reserved_phys_ram_ranges() -> &'static [RawRange] {
-        &[(0, 0x1000)] // spintable
+        &[]
     }
 
     /// Returns all device memory (MMIO) ranges on the platform.

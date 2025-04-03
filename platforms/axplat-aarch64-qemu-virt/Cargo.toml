@@ -12,7 +12,7 @@ repository.workspace = true
 fp_simd = ["axhal_cpu/fp_simd"]
 irq = []
 rtc = []
-smp = []
+smp = ["axplat-aarch64-common/smp"]
 
 [dependencies]
 memory_addr = "0.3"

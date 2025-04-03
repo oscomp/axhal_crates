@@ -8,10 +8,14 @@ homepage.workspace = true
 documentation.workspace = true
 repository.workspace = true
 
+[features]
+smp = []
+
 [dependencies]
 kspin = "0.1"
 log = "=0.4.21"
 int_ratio = "0.1"
+percpu = "0.2"
 lazyinit = "0.2"
 memory_addr = "0.3"
 page_table_entry = "0.5"

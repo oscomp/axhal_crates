@@ -32,9 +32,9 @@ unsafe extern "C" {
 }
 
 unsafe extern "C" fn rust_entry(cpu_id: usize, dtb: usize) {
-    axhal_plat::mem::clear_bss();
+    unsafe { axhal_plat::mem::clear_bss() };
     axhal_cpu::set_exception_vector_base(exception_vector_base as usize);
-    axhal_cpu::write_page_table_root0(0.into()); // disable low address access
+    axplat_aarch64_common::cpu::init_cpu_primary(cpu_id);
     axplat_aarch64_common::psci::init(PSCI_METHOD);
     axplat_aarch64_common::pl011::init_early(phys_to_virt(pa!(UART_PADDR)));
     axplat_aarch64_common::generic_timer::init_early();
@@ -46,6 +46,6 @@ unsafe extern "C" fn rust_entry(cpu_id: usize, dtb: usize) {
 #[cfg(feature = "smp")]
 unsafe extern "C" fn rust_entry_secondary(cpu_id: usize) {
     axhal_cpu::set_exception_vector_base(exception_vector_base as usize);
-    axhal_cpu::write_page_table_root0(0.into()); // disable low address access
+    axplat_aarch64_common::cpu::init_cpu_secondary(cpu_id);
     axhal_plat::call_secondary_main(cpu_id);
 }
