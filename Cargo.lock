@@ -144,6 +144,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "axhal_plat_impl"
+version = "0.1.0"
+dependencies = [
+ "axplat-aarch64-bsta1000b",
+ "axplat-aarch64-common",
+ "axplat-aarch64-phytium-pi",
+ "axplat-aarch64-qemu-virt",
+ "axplat-aarch64-raspi",
+ "axplat-riscv64-qemu-virt",
+ "axplat-x86-pc",
+ "cfg-if",
+]
+
+[[package]]
 name = "axhal_plat_macros"
 version = "0.1.0"
 dependencies = [
@@ -151,6 +165,21 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "axplat-aarch64-bsta1000b"
+version = "0.1.0"
+dependencies = [
+ "axconfig-gen-macros",
+ "axhal_cpu",
+ "axhal_plat",
+ "axplat-aarch64-common",
+ "dw_apb_uart",
+ "kspin",
+ "log",
+ "memory_addr",
+ "page_table_entry",
 ]
 
 [[package]]
@@ -169,7 +198,21 @@ dependencies = [
  "log",
  "memory_addr",
  "page_table_entry",
+ "percpu",
  "tock-registers 0.9.0",
+]
+
+[[package]]
+name = "axplat-aarch64-phytium-pi"
+version = "0.1.0"
+dependencies = [
+ "axconfig-gen-macros",
+ "axhal_cpu",
+ "axhal_plat",
+ "axplat-aarch64-common",
+ "log",
+ "memory_addr",
+ "page_table_entry",
 ]
 
 [[package]]
@@ -204,6 +247,26 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "toml_edit",
+]
+
+[[package]]
+name = "axplat-riscv64-qemu-virt"
+version = "0.1.0"
+dependencies = [
+ "axconfig-gen-macros",
+ "axhal_cpu",
+ "axhal_plat",
+ "bitflags 2.6.0",
+ "heapless",
+ "int_ratio",
+ "kspin",
+ "lazyinit",
+ "log",
+ "memory_addr",
+ "percpu",
+ "riscv",
+ "riscv_goldfish",
+ "sbi-rt",
 ]
 
 [[package]]
@@ -337,6 +400,15 @@ name = "critical-section"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "790eea4361631c5e7d22598ecd5723ff611904e3344ce8720784c93e3d83d40b"
+
+[[package]]
+name = "dw_apb_uart"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f93d496c8faa9dc676ebfa225432e1e3b57645c9268ead889286546f6d39356d"
+dependencies = [
+ "tock-registers 0.8.1",
+]
 
 [[package]]
 name = "embedded-hal"
@@ -609,10 +681,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8188909339ccc0c68cfb5a04648313f09621e8b87dc03095454f1a11f6c5d436"
 
 [[package]]
+name = "riscv_goldfish"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "07aac72f95e774476db82916d79f2d303191310393830573c1ab5c821b21660a"
+
+[[package]]
 name = "rustversion"
 version = "1.0.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7c45b9784283f1b2e7fb61b42047c2fd678ef0960d4f6f1eba131594cc369d4"
+
+[[package]]
+name = "sbi-rt"
+version = "0.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7fbaa69be1eedc61c426e6d489b2260482e928b465360576900d52d496a58bd0"
+dependencies = [
+ "sbi-spec",
+]
+
+[[package]]
+name = "sbi-spec"
+version = "0.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6e36312fb5ddc10d08ecdc65187402baba4ac34585cb9d1b78522ae2358d890"
 
 [[package]]
 name = "scopeguard"

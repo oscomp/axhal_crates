@@ -51,11 +51,17 @@ jobs:
         platform:
           - name: axplat-x86-pc
             target: x86_64-unknown-none
+          - name: axplat-riscv64-qemu-virt
+            target: riscv64gc-unknown-none-elf
           - name: axplat-aarch64-common
             target: aarch64-unknown-none
           - name: axplat-aarch64-qemu-virt
             target: aarch64-unknown-none
           - name: axplat-aarch64-raspi
+            target: aarch64-unknown-none
+          - name: axplat-aarch64-bsta1000b
+            target: aarch64-unknown-none
+          - name: axplat-aarch64-phytium-pi
             target: aarch64-unknown-none
     steps:
     - uses: actions/checkout@v4
@@ -64,9 +70,13 @@ jobs:
         components: rust-src, clippy
         targets: ${{ matrix.platform.target }}
     - name: Clippy
-      run: cargo clippy --target ${{ matrix.platform.target }} -p ${{ matrix.platform.name }} --all-features
+      run: |
+        cargo clippy --target ${{ matrix.platform.target }} -p ${{ matrix.platform.name }} --all-features
+        cargo clippy --target ${{ matrix.platform.target }} -p axhal_plat_impl --all-features
     - name: Build
-      run: cargo build --target ${{ matrix.platform.target }} -p ${{ matrix.platform.name }} --all-features
+      run: |
+        cargo build --target ${{ matrix.platform.target }} -p ${{ matrix.platform.name }} --all-features
+        cargo build --target ${{ matrix.platform.target }} -p axhal_plat_impl --all-features
 
   doc:
     runs-on: ubuntu-latest

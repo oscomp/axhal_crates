@@ -6,10 +6,14 @@ members = [
     "axhal_plat",
     "axhal_plat_macros",
     "axplat-cli",
+    "axhal_plat_impl",
     "platforms/axplat-x86-pc",
     "platforms/axplat-aarch64-common",
     "platforms/axplat-aarch64-qemu-virt",
     "platforms/axplat-aarch64-raspi",
+    "platforms/axplat-riscv64-qemu-virt",
+    "platforms/axplat-aarch64-bsta1000b",
+    "platforms/axplat-aarch64-phytium-pi",
 ]
 
 [workspace.package]
