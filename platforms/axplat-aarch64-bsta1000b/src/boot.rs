@@ -125,7 +125,7 @@ pub(crate) unsafe extern "C" fn _start_secondary() -> ! {
 
             mov     sp, x0
             bl      {switch_to_el1}
-            adr     x0, {boot_pt}
+            adrp    x0, {boot_pt}
             bl      {enable_mmu}
             bl      {enable_fp}
 
