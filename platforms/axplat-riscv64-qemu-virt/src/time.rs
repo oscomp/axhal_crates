@@ -11,6 +11,8 @@ static mut RTC_EPOCHOFFSET_NANOS: u64 = 0;
 pub(super) fn init_early() {
     #[cfg(feature = "rtc")]
     use crate::config::devices::RTC_PADDR;
+
+    #[cfg(feature = "rtc")]
     if RTC_PADDR != 0 {
         use crate::mem::phys_to_virt;
         use memory_addr::PhysAddr;

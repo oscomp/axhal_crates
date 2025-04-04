@@ -30,5 +30,7 @@ cfg_if::cfg_if! {
         extern crate axplat_aarch64_bsta1000b;
     } else if #[cfg(all(target_arch = "aarch64", feature = "aarch64-phytium-pi"))] {
         extern crate axplat_aarch64_phytium_pi;
+    } else {
+        extern crate axplat_dummy;
     }
 }

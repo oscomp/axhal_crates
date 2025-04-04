@@ -23,6 +23,7 @@ smp = ["axplat-x86-pc?/smp", "axplat-aarch64-qemu-virt?/smp", "axplat-aarch64-ra
 
 [dependencies]
 cfg-if = "1.0"
+axplat-dummy = { path = "../platforms/axplat-dummy" }
 
 [target.'cfg(target_arch = "x86_64")'.dependencies]
 axplat-x86-pc = { path = "../platforms/axplat-x86-pc", optional = true }

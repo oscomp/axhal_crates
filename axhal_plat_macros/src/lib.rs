@@ -35,7 +35,7 @@ fn common_main(item: TokenStream, arg_num: usize, export_name: &str, err_msg: &s
         compiler_error(Error::new(Span::call_site(), err_msg))
     } else {
         quote! {
-            #[unsafe(export_name = #export_name)]
+            #[cfg_attr(not(test),unsafe(export_name = #export_name))]
             #main
         }
         .into()
