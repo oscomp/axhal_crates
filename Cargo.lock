@@ -152,6 +152,7 @@ dependencies = [
  "axplat-aarch64-phytium-pi",
  "axplat-aarch64-qemu-virt",
  "axplat-aarch64-raspi",
+ "axplat-dummy",
  "axplat-riscv64-qemu-virt",
  "axplat-x86-pc",
  "cfg-if",
@@ -247,6 +248,14 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "toml_edit",
+]
+
+[[package]]
+name = "axplat-dummy"
+version = "0.1.0"
+dependencies = [
+ "axconfig-gen-macros",
+ "axhal_plat",
 ]
 
 [[package]]
