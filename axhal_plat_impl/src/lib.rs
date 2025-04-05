@@ -34,3 +34,16 @@ cfg_if::cfg_if! {
         extern crate axplat_dummy;
     }
 }
+
+pub mod config {
+    //! Platform-specific configuration.
+    //!
+    //! The `AX_CONFIG_PATH` environment variable,  which will be generated in
+    //! the `build.rs` file is used to locate the configuration file.
+    //!
+    //! The configuration file is a TOML file that contains the platform-specific
+    //! configuration, located at platforms/<target_platform>/axconfig.toml.
+    //!
+    //! [axhal_platforms]: https://github.com/arceos-org/axhal_crates/tree/main/platforms
+    axconfig_gen_macros::include_configs!(env!("AX_PLAT_CONFIG_PATH"));
+}

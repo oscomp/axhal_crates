@@ -24,6 +24,7 @@ smp = ["axplat-x86-pc?/smp", "axplat-aarch64-qemu-virt?/smp", "axplat-aarch64-ra
 [dependencies]
 cfg-if = "1.0"
 axplat-dummy = { path = "../platforms/axplat-dummy" }
+axconfig-gen-macros = { version = "0.1.0", features = ["nightly"] }
 
 [target.'cfg(target_arch = "x86_64")'.dependencies]
 axplat-x86-pc = { path = "../platforms/axplat-x86-pc", optional = true }
