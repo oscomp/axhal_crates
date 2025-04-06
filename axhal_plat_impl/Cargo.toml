@@ -15,11 +15,12 @@ aarch64-qemu-virt = ["axplat-aarch64-qemu-virt"]
 aarch64-raspi = ["axplat-aarch64-raspi"]
 aarch64-bsta1000b = ["axplat-aarch64-bsta1000b"]
 aarch64-phytium-pi = ["axplat-aarch64-phytium-pi"]
+loongarch64-qemu-virt = ["axplat-loongarch64-qemu-virt"]
 
-fp_simd = ["axplat-x86-pc?/fp_simd", "axplat-aarch64-qemu-virt?/fp_simd", "axplat-aarch64-raspi?/fp_simd", "axplat-riscv64-qemu-virt?/fp_simd", "axplat-aarch64-bsta1000b?/fp_simd", "axplat-aarch64-phytium-pi?/fp_simd"]
-irq = ["axplat-x86-pc?/irq", "axplat-aarch64-qemu-virt?/irq", "axplat-aarch64-raspi?/irq", "axplat-riscv64-qemu-virt?/irq", "axplat-aarch64-bsta1000b?/irq", "axplat-aarch64-phytium-pi?/irq"]
-rtc = ["axplat-x86-pc?/rtc", "axplat-aarch64-qemu-virt?/rtc", "axplat-aarch64-raspi?/rtc", "axplat-riscv64-qemu-virt?/rtc", "axplat-aarch64-bsta1000b?/rtc", "axplat-aarch64-phytium-pi?/rtc"]
-smp = ["axplat-x86-pc?/smp", "axplat-aarch64-qemu-virt?/smp", "axplat-aarch64-raspi?/smp", "axplat-riscv64-qemu-virt?/smp", "axplat-aarch64-bsta1000b?/smp", "axplat-aarch64-phytium-pi?/smp"]
+fp_simd = ["axplat-x86-pc?/fp_simd", "axplat-aarch64-qemu-virt?/fp_simd", "axplat-aarch64-raspi?/fp_simd", "axplat-riscv64-qemu-virt?/fp_simd", "axplat-aarch64-bsta1000b?/fp_simd", "axplat-aarch64-phytium-pi?/fp_simd", "axplat-loongarch64-qemu-virt?/fp_simd"]
+irq = ["axplat-x86-pc?/irq", "axplat-aarch64-qemu-virt?/irq", "axplat-aarch64-raspi?/irq", "axplat-riscv64-qemu-virt?/irq", "axplat-aarch64-bsta1000b?/irq", "axplat-aarch64-phytium-pi?/irq", "axplat-loongarch64-qemu-virt?/irq"]
+rtc = ["axplat-x86-pc?/rtc", "axplat-aarch64-qemu-virt?/rtc", "axplat-aarch64-raspi?/rtc", "axplat-riscv64-qemu-virt?/rtc", "axplat-aarch64-bsta1000b?/rtc", "axplat-aarch64-phytium-pi?/rtc", "axplat-loongarch64-qemu-virt?/rtc"]
+smp = ["axplat-x86-pc?/smp", "axplat-aarch64-qemu-virt?/smp", "axplat-aarch64-raspi?/smp", "axplat-riscv64-qemu-virt?/smp", "axplat-aarch64-bsta1000b?/smp", "axplat-aarch64-phytium-pi?/smp", "axplat-loongarch64-qemu-virt?/smp"]
 
 [dependencies]
 cfg-if = "1.0"
@@ -38,3 +39,6 @@ axplat-aarch64-raspi = { path = "../platforms/axplat-aarch64-raspi", optional = 
 axplat-aarch64-bsta1000b = { path = "../platforms/axplat-aarch64-bsta1000b", optional = true }
 axplat-aarch64-phytium-pi = { path = "../platforms/axplat-aarch64-phytium-pi", optional = true }
 axplat-aarch64-common = { path = "../platforms/axplat-aarch64-common" }
+
+[target.'cfg(target_arch = "loongarch64")'.dependencies]
+axplat-loongarch64-qemu-virt = { path = "../platforms/axplat-loongarch64-qemu-virt", optional = true }

@@ -17,9 +17,6 @@ mod mem;
 mod power;
 mod time;
 
-#[cfg(feature = "smp")]
-mod mp;
-
 mod config {
     axconfig_gen_macros::include_configs!("axconfig.toml");
 }
@@ -30,7 +27,6 @@ unsafe extern "C" {
 
 unsafe extern "C" fn rust_entry(cpu_id: usize, dtb: usize) {
     unsafe { axhal_plat::mem::clear_bss() };
-    axhal_cpu::set_trap_vector_base(trap_vector_base as usize);
     init_cpu_primary(cpu_id);
     self::time::init_early();
     axhal_plat::call_main(cpu_id, dtb);
@@ -38,17 +34,18 @@ unsafe extern "C" fn rust_entry(cpu_id: usize, dtb: usize) {
 
 #[cfg(feature = "smp")]
 unsafe extern "C" fn rust_entry_secondary(cpu_id: usize) {
-    axhal_cpu::set_trap_vector_base(trap_vector_base as usize);
     init_cpu_secondary(cpu_id);
     axhal_plat::call_secondary_main(cpu_id);
 }
 
 fn init_cpu_primary(cpu_id: usize) {
+    axhal_cpu::set_trap_vector_base(trap_vector_base as usize);
     percpu::init();
     percpu::init_percpu_reg(cpu_id);
 }
 
 #[cfg(feature = "smp")]
 fn init_cpu_secondary(cpu_id: usize) {
+    axhal_cpu::set_trap_vector_base(trap_vector_base as usize);
     percpu::init_percpu_reg(cpu_id);
 }

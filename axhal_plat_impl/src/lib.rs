@@ -30,6 +30,8 @@ cfg_if::cfg_if! {
         extern crate axplat_aarch64_bsta1000b;
     } else if #[cfg(all(target_arch = "aarch64", feature = "aarch64-phytium-pi"))] {
         extern crate axplat_aarch64_phytium_pi;
+    } else if #[cfg(all(target_arch = "loongarch64", feature = "loongarch64-qemu-virt"))] {
+        extern crate axplat_loongarch64_qemu_virt;
     } else {
         extern crate axplat_dummy;
     }

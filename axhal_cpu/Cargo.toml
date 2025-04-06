@@ -22,6 +22,7 @@ log = "=0.4.21"
 cfg-if = "1.0"
 memory_addr = "0.3"
 page_table_entry = "0.5"
+page_table_multiarch = "0.5.3"
 static_assertions = "1.1.0"
 
 [target.'cfg(target_arch = "x86_64")'.dependencies]
@@ -34,6 +35,11 @@ tock-registers = "0.9"
 
 [target.'cfg(any(target_arch = "riscv32", target_arch = "riscv64"))'.dependencies]
 riscv = "0.12"
+
+[target.'cfg(target_arch = "loongarch64")'.dependencies]
+loongArch64 = "0.2.4"
+ns16550a = "0.4.0"
+
 
 [lints.clippy]
 new_without_default = "allow"
