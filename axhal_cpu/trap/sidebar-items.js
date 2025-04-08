@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"attr":["def_trap_handler","register_trap_handler"],"fn":["handle_syscall"],"static":["IRQ","PAGE_FAULT","SYSCALL"],"struct":["PageFaultFlags"]};
