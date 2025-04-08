@@ -121,6 +121,8 @@ version = "0.1.0"
 dependencies = [
  "aarch64-cpu",
  "cfg-if",
+ "kernel_guard",
+ "lazyinit",
  "linkme",
  "log",
  "loongArch64",
@@ -128,6 +130,7 @@ dependencies = [
  "ns16550a",
  "page_table_entry",
  "page_table_multiarch",
+ "percpu",
  "riscv",
  "static_assertions",
  "tock-registers 0.9.0",

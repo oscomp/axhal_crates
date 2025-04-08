@@ -51,6 +51,38 @@ pub struct TrapFrame {
     pub sstatus: usize,
 }
 
+impl TrapFrame {
+    /// Gets the 0th syscall argument.
+    pub const fn arg0(&self) -> usize {
+        self.regs.a0
+    }
+
+    /// Gets the 1st syscall argument.
+    pub const fn arg1(&self) -> usize {
+        self.regs.a1
+    }
+
+    /// Gets the 2nd syscall argument.
+    pub const fn arg2(&self) -> usize {
+        self.regs.a2
+    }
+
+    /// Gets the 3rd syscall argument.
+    pub const fn arg3(&self) -> usize {
+        self.regs.a3
+    }
+
+    /// Gets the 4th syscall argument.
+    pub const fn arg4(&self) -> usize {
+        self.regs.a4
+    }
+
+    /// Gets the 5th syscall argument.
+    pub const fn arg5(&self) -> usize {
+        self.regs.a5
+    }
+}
+
 /// Saved hardware states of a task.
 ///
 /// The context usually includes:
@@ -84,6 +116,9 @@ pub struct TaskContext {
     pub s11: usize,
 
     pub tp: usize,
+    /// The `satp` register value, i.e., the page table root.
+    #[cfg(feature = "uspace")]
+    pub satp: memory_addr::PhysAddr,
     // TODO: FP states
 }
 
@@ -101,6 +136,12 @@ impl TaskContext {
         self.tp = tls_area.as_usize();
     }
 
+    /// Changes the page table root (`satp` register for riscv64).
+    #[cfg(feature = "uspace")]
+    pub fn set_page_table_root(&mut self, satp: memory_addr::PhysAddr) {
+        self.satp = satp;
+    }
+
     /// Switches to another task.
     ///
     /// It first saves the current task's context from CPU to this place, and then
@@ -110,6 +151,12 @@ impl TaskContext {
         {
             self.tp = super::read_thread_pointer();
             unsafe { super::write_thread_pointer(next_ctx.tp) };
+        }
+        #[cfg(feature = "uspace")]
+        unsafe {
+            if self.satp != next_ctx.satp {
+                super::write_page_table_root(next_ctx.satp);
+            }
         }
         unsafe {
             // TODO: switch FP states

@@ -107,6 +107,9 @@ pub struct TaskContext {
     pub s: [usize; 10],
     /// Thread Pointer
     pub tp: usize,
+    #[cfg(feature = "uspace")]
+    /// user page table root
+    pub pgdl: usize,
 }
 
 impl TaskContext {
@@ -123,6 +126,14 @@ impl TaskContext {
         self.tp = tls_area.as_usize();
     }
 
+    /// Changes the page table root (`pgdl` register for loongarch64).
+    ///
+    /// If not set, it means that this task is a kernel task and only `pgdh` register will be used.
+    #[cfg(feature = "uspace")]
+    pub fn set_page_table_root(&mut self, pgdl: memory_addr::PhysAddr) {
+        self.pgdl = pgdl.as_usize();
+    }
+
     /// Switches to another task.
     ///
     /// It first saves the current task's context from CPU to this place, and then
@@ -132,6 +143,12 @@ impl TaskContext {
         {
             self.tp = super::read_thread_pointer();
             unsafe { super::write_thread_pointer(next_ctx.tp) };
+        }
+        #[cfg(feature = "uspace")]
+        {
+            if self.pgdl != next_ctx.pgdl {
+                unsafe { super::write_page_table_root0(pa!(next_ctx.pgdl)) };
+            }
         }
         unsafe { context_switch(self, next_ctx) }
     }

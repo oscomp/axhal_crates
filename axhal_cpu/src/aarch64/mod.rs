@@ -3,13 +3,21 @@ mod context;
 #[cfg(target_os = "none")]
 mod trap;
 
-use core::arch::asm;
-
+use crate::cpu::CURRENT_TASK_PTR;
 use aarch64_cpu::{asm::barrier, registers::*};
+use core::arch::asm;
 use memory_addr::{PhysAddr, VirtAddr};
 use tock_registers::interfaces::{Readable, Writeable};
 
 pub use self::context::{FpState, TaskContext, TrapFrame};
+
+/// Stores the pointer to the current task in the SP_EL0 register.
+///
+/// In aarch64 architecture, we use `SP_EL0` as the read cache for
+/// the current task pointer. And this function will update this cache.
+pub(crate) unsafe fn cache_current_task_ptr() {
+    unsafe { aarch64_cpu::registers::SP_EL0.set(CURRENT_TASK_PTR.read_current_raw() as u64) };
+}
 
 /// Allows the current CPU to respond to interrupts.
 #[inline]

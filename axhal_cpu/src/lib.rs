@@ -9,6 +9,8 @@ extern crate log;
 #[macro_use]
 extern crate memory_addr;
 
+pub mod cpu;
+
 #[macro_use]
 pub mod trap;
 
