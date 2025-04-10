@@ -1,10 +1,13 @@
 use core::fmt;
 
+use lazyinit::LazyInit;
 use x86_64::addr::VirtAddr;
 use x86_64::structures::idt::{Entry, HandlerFunc, InterruptDescriptorTable};
 use x86_64::structures::DescriptorTablePointer;
 
 const NUM_INT: usize = 256;
+
+static IDT: LazyInit<IdtStruct> = LazyInit::new();
 
 /// A wrapper of the Interrupt Descriptor Table (IDT).
 #[repr(transparent)]
@@ -65,4 +68,10 @@ impl fmt::Debug for IdtStruct {
             .field("table", &self.table)
             .finish()
     }
+}
+
+/// Initializes the global IDT and loads it into the current CPU.
+pub fn init_idt() {
+    IDT.call_once(IdtStruct::new);
+    unsafe { IDT.load() };
 }

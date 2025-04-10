@@ -2,7 +2,7 @@ mod context;
 mod gdt;
 mod idt;
 
-#[cfg(target_os = "none")]
+// #[cfg(target_os = "none")]
 mod trap;
 
 use core::arch::asm;
@@ -12,8 +12,8 @@ use x86::{controlregs, msr, tlb};
 use x86_64::instructions::interrupts;
 
 pub use self::context::{ExtendedState, FxsaveArea, TaskContext, TrapFrame};
-pub use self::gdt::GdtStruct;
-pub use self::idt::IdtStruct;
+pub use self::gdt::{init_gdt, GdtStruct};
+pub use self::idt::{init_idt, IdtStruct};
 pub use x86_64::structures::tss::TaskStateSegment;
 
 /// Allows the current CPU to respond to interrupts.

@@ -1,20 +1,15 @@
 use core::arch::naked_asm;
 use memory_addr::VirtAddr;
 
-/// General registers of RISC-V.
+/// General registers of Loongarch64.
 #[allow(missing_docs)]
 #[repr(C)]
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct GeneralRegisters {
+    pub zero: usize,
     pub ra: usize,
+    pub tp: usize,
     pub sp: usize,
-    pub gp: usize, // only valid for user traps
-    pub tp: usize, // only valid for user traps
-    pub t0: usize,
-    pub t1: usize,
-    pub t2: usize,
-    pub s0: usize,
-    pub s1: usize,
     pub a0: usize,
     pub a1: usize,
     pub a2: usize,
@@ -23,6 +18,19 @@ pub struct GeneralRegisters {
     pub a5: usize,
     pub a6: usize,
     pub a7: usize,
+    pub t0: usize,
+    pub t1: usize,
+    pub t2: usize,
+    pub t3: usize,
+    pub t4: usize,
+    pub t5: usize,
+    pub t6: usize,
+    pub t7: usize,
+    pub t8: usize,
+    pub u0: usize,
+    pub fp: usize,
+    pub s0: usize,
+    pub s1: usize,
     pub s2: usize,
     pub s3: usize,
     pub s4: usize,
@@ -30,56 +38,49 @@ pub struct GeneralRegisters {
     pub s6: usize,
     pub s7: usize,
     pub s8: usize,
-    pub s9: usize,
-    pub s10: usize,
-    pub s11: usize,
-    pub t3: usize,
-    pub t4: usize,
-    pub t5: usize,
-    pub t6: usize,
 }
 
 /// Saved registers when a trap (interrupt or exception) occurs.
 #[repr(C)]
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct TrapFrame {
     /// All general registers.
     pub regs: GeneralRegisters,
-    /// Supervisor Exception Program Counter.
-    pub sepc: usize,
-    /// Supervisor Status Register.
-    pub sstatus: usize,
+    /// Pre-exception Mode Information
+    pub prmd: usize,
+    /// Exception Return Address
+    pub era: usize,
 }
 
 impl TrapFrame {
     /// Gets the 0th syscall argument.
     pub const fn arg0(&self) -> usize {
-        self.regs.a0
+        self.regs.a0 as _
     }
 
     /// Gets the 1st syscall argument.
     pub const fn arg1(&self) -> usize {
-        self.regs.a1
+        self.regs.a1 as _
     }
 
     /// Gets the 2nd syscall argument.
     pub const fn arg2(&self) -> usize {
-        self.regs.a2
+        self.regs.a2 as _
     }
 
     /// Gets the 3rd syscall argument.
     pub const fn arg3(&self) -> usize {
-        self.regs.a3
+        self.regs.a3 as _
     }
 
     /// Gets the 4th syscall argument.
     pub const fn arg4(&self) -> usize {
-        self.regs.a4
+        self.regs.a4 as _
     }
 
     /// Gets the 5th syscall argument.
     pub const fn arg5(&self) -> usize {
-        self.regs.a5
+        self.regs.a5 as _
     }
 }
 
@@ -98,34 +99,23 @@ impl TrapFrame {
 #[repr(C)]
 #[derive(Debug, Default)]
 pub struct TaskContext {
-    pub ra: usize, // return address (x1)
-    pub sp: usize, // stack pointer (x2)
-
-    pub s0: usize, // x8-x9
-    pub s1: usize,
-
-    pub s2: usize, // x18-x27
-    pub s3: usize,
-    pub s4: usize,
-    pub s5: usize,
-    pub s6: usize,
-    pub s7: usize,
-    pub s8: usize,
-    pub s9: usize,
-    pub s10: usize,
-    pub s11: usize,
-
+    /// Return Address
+    pub ra: usize,
+    /// Stack Pointer
+    pub sp: usize,
+    /// loongArch need to save 10 static registers from $r22 to $r31
+    pub s: [usize; 10],
+    /// Thread Pointer
     pub tp: usize,
-    /// The `satp` register value, i.e., the page table root.
     #[cfg(feature = "uspace")]
-    pub satp: memory_addr::PhysAddr,
-    // TODO: FP states
+    /// user page table root
+    pub pgdl: usize,
 }
 
 impl TaskContext {
     /// Creates a new default context for a new task.
-    pub const fn new() -> Self {
-        unsafe { core::mem::MaybeUninit::zeroed().assume_init() }
+    pub fn new() -> Self {
+        Default::default()
     }
 
     /// Initializes the context for a new task, with the given entry point and
@@ -136,10 +126,12 @@ impl TaskContext {
         self.tp = tls_area.as_usize();
     }
 
-    /// Changes the page table root (`satp` register for riscv64).
+    /// Changes the page table root (`pgdl` register for loongarch64).
+    ///
+    /// If not set, it means that this task is a kernel task and only `pgdh` register will be used.
     #[cfg(feature = "uspace")]
-    pub fn set_page_table_root(&mut self, satp: memory_addr::PhysAddr) {
-        self.satp = satp;
+    pub fn set_page_table_root(&mut self, pgdl: memory_addr::PhysAddr) {
+        self.pgdl = pgdl.as_usize();
     }
 
     /// Switches to another task.
@@ -153,15 +145,12 @@ impl TaskContext {
             unsafe { super::write_thread_pointer(next_ctx.tp) };
         }
         #[cfg(feature = "uspace")]
-        unsafe {
-            if self.satp != next_ctx.satp {
-                super::write_page_table_root(next_ctx.satp);
+        {
+            if self.pgdl != next_ctx.pgdl {
+                unsafe { super::write_page_table_root0(pa!(next_ctx.pgdl)) };
             }
         }
-        unsafe {
-            // TODO: switch FP states
-            context_switch(self, next_ctx)
-        }
+        unsafe { context_switch(self, next_ctx) }
     }
 }
 
@@ -169,39 +158,35 @@ impl TaskContext {
 unsafe extern "C" fn context_switch(_current_task: &mut TaskContext, _next_task: &TaskContext) {
     unsafe {
         naked_asm!(
-            include_asm_marcos!(),
+            include_asm_macros!(),
             "
             // save old context (callee-saved registers)
-            STR     ra, a0, 0
-            STR     sp, a0, 1
-            STR     s0, a0, 2
-            STR     s1, a0, 3
-            STR     s2, a0, 4
-            STR     s3, a0, 5
-            STR     s4, a0, 6
-            STR     s5, a0, 7
-            STR     s6, a0, 8
-            STR     s7, a0, 9
-            STR     s8, a0, 10
-            STR     s9, a0, 11
-            STR     s10, a0, 12
-            STR     s11, a0, 13
+            STD     $ra, $a0, 0
+            STD     $sp, $a0, 1
+            STD     $s0, $a0, 2
+            STD     $s1, $a0, 3
+            STD     $s2, $a0, 4
+            STD     $s3, $a0, 5
+            STD     $s4, $a0, 6
+            STD     $s5, $a0, 7
+            STD     $s6, $a0, 8
+            STD     $s7, $a0, 9
+            STD     $s8, $a0, 10
+            STD     $fp, $a0, 11
 
             // restore new context
-            LDR     s11, a1, 13
-            LDR     s10, a1, 12
-            LDR     s9, a1, 11
-            LDR     s8, a1, 10
-            LDR     s7, a1, 9
-            LDR     s6, a1, 8
-            LDR     s5, a1, 7
-            LDR     s4, a1, 6
-            LDR     s3, a1, 5
-            LDR     s2, a1, 4
-            LDR     s1, a1, 3
-            LDR     s0, a1, 2
-            LDR     sp, a1, 1
-            LDR     ra, a1, 0
+            LDD     $fp, $a1, 11
+            LDD     $s8, $a1, 10
+            LDD     $s7, $a1, 9
+            LDD     $s6, $a1, 8
+            LDD     $s5, $a1, 7
+            LDD     $s4, $a1, 6
+            LDD     $s3, $a1, 5
+            LDD     $s2, $a1, 4
+            LDD     $s1, $a1, 3
+            LDD     $s0, $a1, 2
+            LDD     $sp, $a1, 1
+            LDD     $ra, $a1, 0
 
             ret",
         )

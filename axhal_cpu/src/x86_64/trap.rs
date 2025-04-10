@@ -9,6 +9,9 @@ core::arch::global_asm!(include_str!("trap.S"));
 const IRQ_VECTOR_START: u8 = 0x20;
 const IRQ_VECTOR_END: u8 = 0xff;
 
+#[cfg(feature = "uspace")]
+const LEGACY_SYSCALL_VECTOR: u8 = 0x80;
+
 fn handle_page_fault(tf: &TrapFrame) {
     let access_flags = err_code_to_flags(tf.error_code)
         .unwrap_or_else(|e| panic!("Invalid #PF error code: {:#x}", e));
@@ -27,7 +30,7 @@ fn handle_page_fault(tf: &TrapFrame) {
 }
 
 #[unsafe(no_mangle)]
-fn x86_trap_handler(tf: &TrapFrame) {
+fn x86_trap_handler(tf: &mut TrapFrame) {
     match tf.vector as u8 {
         PAGE_FAULT_VECTOR => handle_page_fault(tf),
         BREAKPOINT_VECTOR => debug!("#BP @ {:#x} ", tf.rip),
@@ -36,6 +39,10 @@ fn x86_trap_handler(tf: &TrapFrame) {
                 "#GP @ {:#x}, error_code={:#x}:\n{:#x?}",
                 tf.rip, tf.error_code, tf
             );
+        }
+        #[cfg(feature = "uspace")]
+        LEGACY_SYSCALL_VECTOR => {
+            tf.rax = crate::trap::handle_syscall(tf, tf.rax as usize) as u64;
         }
         IRQ_VECTOR_START..=IRQ_VECTOR_END => {
             handle_trap!(IRQ, tf.vector as _);

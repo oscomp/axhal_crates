@@ -15,6 +15,38 @@ pub struct TrapFrame {
     pub spsr: u64,
 }
 
+impl TrapFrame {
+    /// Gets the 0th syscall argument.
+    pub const fn arg0(&self) -> usize {
+        self.r[0] as _
+    }
+
+    /// Gets the 1st syscall argument.
+    pub const fn arg1(&self) -> usize {
+        self.r[1] as _
+    }
+
+    /// Gets the 2nd syscall argument.
+    pub const fn arg2(&self) -> usize {
+        self.r[2] as _
+    }
+
+    /// Gets the 3rd syscall argument.
+    pub const fn arg3(&self) -> usize {
+        self.r[3] as _
+    }
+
+    /// Gets the 4th syscall argument.
+    pub const fn arg4(&self) -> usize {
+        self.r[4] as _
+    }
+
+    /// Gets the 5th syscall argument.
+    pub const fn arg5(&self) -> usize {
+        self.r[5] as _
+    }
+}
+
 /// FP & SIMD registers.
 #[repr(C, align(16))]
 #[derive(Debug, Default)]
@@ -63,6 +95,9 @@ pub struct TaskContext {
     pub r28: u64,
     pub r29: u64,
     pub lr: u64, // r30
+    /// The `ttbr0_el1` register value, i.e., the page table root.
+    #[cfg(feature = "uspace")]
+    pub ttbr0_el1: memory_addr::PhysAddr,
     #[cfg(feature = "fp_simd")]
     pub fp_state: FpState,
 }
@@ -81,6 +116,14 @@ impl TaskContext {
         self.tpidr_el0 = tls_area.as_usize() as u64;
     }
 
+    /// Changes the page table root for user space (`ttbr0_el1` register for aarch64 in el1 level).
+    ///
+    /// If not set, it means that this task is a kernel task and only `ttbr1_el1` register will be used.
+    #[cfg(feature = "uspace")]
+    pub fn set_page_table_root(&mut self, ttbr0_el1: memory_addr::PhysAddr) {
+        self.ttbr0_el1 = ttbr0_el1;
+    }
+
     /// Switches to another task.
     ///
     /// It first saves the current task's context from CPU to this place, and then
@@ -88,6 +131,12 @@ impl TaskContext {
     pub fn switch_to(&mut self, next_ctx: &Self) {
         #[cfg(feature = "fp_simd")]
         self.fp_state.switch_to(&next_ctx.fp_state);
+        #[cfg(feature = "uspace")]
+        {
+            if self.ttbr0_el1 != next_ctx.ttbr0_el1 {
+                unsafe { super::write_page_table_root0(next_ctx.ttbr0_el1) };
+            }
+        }
         unsafe { context_switch(self, next_ctx) }
     }
 }
